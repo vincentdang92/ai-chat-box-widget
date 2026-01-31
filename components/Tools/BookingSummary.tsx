@@ -2,120 +2,129 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, DollarSign, User, Mail, MessageSquare } from 'lucide-react';
+import { Calendar, Clock, User, Mail, Phone, DollarSign, CheckCircle2 } from 'lucide-react';
 
 interface BookingSummaryProps {
-    data: {
-        serviceType: string;
+    bookingData: {
         serviceName: string;
         date: string;
         time: string;
-        price?: string;
         customerName?: string;
         customerEmail?: string;
-        specialRequests?: string;
+        customerMobile?: string;
+        price?: string;
     };
     onConfirm: () => void;
 }
 
-export default function BookingSummary({ data, onConfirm }: BookingSummaryProps) {
+export default function BookingSummary({ bookingData, onConfirm }: BookingSummaryProps) {
+    const { serviceName, date, time, customerName, customerEmail, customerMobile, price } = bookingData;
+
     return (
         <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 shadow-sm"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-4 shadow-lg"
         >
             {/* Header */}
-            <div className="flex items-center gap-2 mb-3">
-                <div className="text-2xl">📋</div>
-                <h4 className="font-semibold text-blue-900 text-lg">Booking Summary</h4>
+            <div className="flex items-center gap-2 mb-4">
+                <div className="bg-purple-500 p-2 rounded-full">
+                    <CheckCircle2 className="text-white" size={20} />
+                </div>
+                <div>
+                    <h3 className="font-bold text-gray-900 text-sm">Booking Summary</h3>
+                    <p className="text-xs text-gray-600">Please review your booking details</p>
+                </div>
             </div>
 
-            <p className="text-sm text-blue-800 mb-4">
-                Please review your booking details below and click confirm to complete your reservation.
-            </p>
-
             {/* Booking Details */}
-            <div className="bg-white rounded-lg p-4 space-y-3 mb-4">
+            <div className="bg-white rounded-lg p-3 mb-4 space-y-3">
                 {/* Service */}
-                <div className="flex items-start gap-3 pb-3 border-b border-gray-200">
-                    <div className="text-3xl">{data.serviceType === 'tour' ? '✈️' : '💅'}</div>
-                    <div className="flex-1">
-                        <p className="text-xs text-gray-500 uppercase tracking-wide">Service</p>
-                        <p className="font-bold text-gray-900 text-lg">{data.serviceName}</p>
-                        <p className="text-xs text-gray-600 capitalize">{data.serviceType}</p>
+                <div className="flex items-start gap-3 pb-3 border-b border-gray-100">
+                    <div className="bg-purple-100 p-2 rounded-lg">
+                        <span className="text-xl">💅</span>
                     </div>
-                    {data.price && (
+                    <div className="flex-1">
+                        <p className="text-xs text-gray-500 font-medium">Service</p>
+                        <p className="font-semibold text-gray-900 text-sm">{serviceName}</p>
+                    </div>
+                    {price && (
                         <div className="text-right">
-                            <p className="text-2xl font-bold text-blue-600">{data.price}</p>
+                            <p className="text-xs text-gray-500">Price</p>
+                            <p className="font-bold text-purple-600 text-sm">{price}</p>
                         </div>
                     )}
                 </div>
 
                 {/* Date & Time */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3 pb-3 border-b border-gray-100">
                     <div className="flex items-start gap-2">
-                        <Calendar className="text-blue-500 mt-0.5" size={18} />
+                        <Calendar className="text-purple-500 mt-0.5" size={16} />
                         <div>
-                            <p className="text-xs text-gray-500">Date</p>
-                            <p className="font-semibold text-gray-900">{data.date}</p>
+                            <p className="text-xs text-gray-500 font-medium">Date</p>
+                            <p className="font-semibold text-gray-900 text-xs">{date}</p>
                         </div>
                     </div>
                     <div className="flex items-start gap-2">
-                        <Clock className="text-blue-500 mt-0.5" size={18} />
+                        <Clock className="text-purple-500 mt-0.5" size={16} />
                         <div>
-                            <p className="text-xs text-gray-500">Time</p>
-                            <p className="font-semibold text-gray-900">{data.time}</p>
+                            <p className="text-xs text-gray-500 font-medium">Time</p>
+                            <p className="font-semibold text-gray-900 text-xs">{time}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Customer Info */}
-                {(data.customerName || data.customerEmail) && (
-                    <div className="pt-3 border-t border-gray-200 space-y-2">
-                        {data.customerName && (
+                {/* Customer Information */}
+                {(customerName || customerEmail || customerMobile) && (
+                    <div className="space-y-2">
+                        <p className="text-xs text-gray-500 font-semibold mb-2">Customer Information</p>
+                        {customerName && (
                             <div className="flex items-center gap-2">
-                                <User className="text-gray-400" size={16} />
-                                <p className="text-sm text-gray-700">{data.customerName}</p>
+                                <User className="text-gray-400" size={14} />
+                                <p className="text-xs text-gray-700">{customerName}</p>
                             </div>
                         )}
-                        {data.customerEmail && (
+                        {customerMobile && (
                             <div className="flex items-center gap-2">
-                                <Mail className="text-gray-400" size={16} />
-                                <p className="text-sm text-gray-700">{data.customerEmail}</p>
+                                <Phone className="text-gray-400" size={14} />
+                                <p className="text-xs text-gray-700">{customerMobile}</p>
+                            </div>
+                        )}
+                        {customerEmail && (
+                            <div className="flex items-center gap-2">
+                                <Mail className="text-gray-400" size={14} />
+                                <p className="text-xs text-gray-700 break-all">{customerEmail}</p>
                             </div>
                         )}
                     </div>
                 )}
+            </div>
 
-                {/* Special Requests */}
-                {data.specialRequests && (
-                    <div className="pt-3 border-t border-gray-200">
-                        <div className="flex items-start gap-2">
-                            <MessageSquare className="text-gray-400 mt-0.5" size={16} />
-                            <div>
-                                <p className="text-xs text-gray-500 mb-1">Special Requests</p>
-                                <p className="text-sm text-gray-700 italic">{data.specialRequests}</p>
-                            </div>
+            {/* Total Amount */}
+            {price && (
+                <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg p-3 mb-4">
+                    <div className="flex items-center justify-between text-white">
+                        <div className="flex items-center gap-2">
+                            <DollarSign size={18} />
+                            <span className="font-semibold text-sm">Total Amount</span>
                         </div>
+                        <span className="font-bold text-xl">{price}</span>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
-            {/* Action Buttons */}
-            <div className="flex gap-2">
-                <button
-                    onClick={onConfirm}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2"
-                >
-                    <span>✓</span>
-                    <span>Confirm Booking</span>
-                </button>
-            </div>
+            {/* Confirm Button */}
+            <button
+                onClick={onConfirm}
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all transform hover:scale-105 active:scale-95 shadow-md text-sm flex items-center justify-center gap-2"
+            >
+                <CheckCircle2 size={18} />
+                Confirm Booking
+            </button>
 
             {/* Footer Note */}
             <p className="text-xs text-gray-500 text-center mt-3">
-                By confirming, you agree to our terms and conditions
+                You'll receive a confirmation email shortly
             </p>
         </motion.div>
     );

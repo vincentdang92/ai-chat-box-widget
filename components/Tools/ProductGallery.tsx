@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 
 interface Product {
     id: string;
     name: string;
     description: string;
-    price?: string;
+    price: string;
     image: string;
 }
 
@@ -21,84 +21,67 @@ interface ProductGalleryProps {
 }
 
 export default function ProductGallery({ data, onBook }: ProductGalleryProps) {
-    const [currentIndex, setCurrentIndex] = useState(0);
-
-    const nextProduct = () => {
-        setCurrentIndex((prev) => (prev + 1) % data.products.length);
-    };
-
-    const prevProduct = () => {
-        setCurrentIndex((prev) => (prev - 1 + data.products.length) % data.products.length);
-    };
-
-    const currentProduct = data.products[currentIndex];
+    const { category, products } = data;
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+            className="w-full"
         >
-            <h4 className="font-semibold text-gray-900 mb-3">🛍️ {data.category}</h4>
-
-            <div className="relative">
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={currentIndex}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.2 }}
-                        className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 text-center"
-                    >
-                        <div className="text-5xl mb-3">{currentProduct.image}</div>
-                        <h5 className="font-semibold text-lg text-gray-900 mb-1">
-                            {currentProduct.name}
-                        </h5>
-                        <p className="text-sm text-gray-600 mb-2">{currentProduct.description}</p>
-                        {currentProduct.price && (
-                            <p className="text-xl font-bold text-blue-600">{currentProduct.price}</p>
-                        )}
-                    </motion.div>
-                </AnimatePresence>
-
-                {/* Navigation */}
-                {data.products.length > 1 && (
-                    <div className="flex justify-between items-center mt-3">
-                        <button
-                            onClick={prevProduct}
-                            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                        >
-                            <ChevronLeft size={20} />
-                        </button>
-
-                        <div className="flex gap-1">
-                            {data.products.map((_, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentIndex(index)}
-                                    className={`w-2 h-2 rounded-full transition-all ${index === currentIndex ? 'bg-blue-500 w-4' : 'bg-gray-300'
-                                        }`}
-                                />
-                            ))}
-                        </div>
-
-                        <button
-                            onClick={nextProduct}
-                            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                        >
-                            <ChevronRight size={20} />
-                        </button>
-                    </div>
-                )}
+            {/* Header */}
+            <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="text-purple-500" size={18} />
+                <h3 className="font-semibold text-gray-800 text-sm">{category}</h3>
             </div>
 
-            <button
-                onClick={() => onBook?.(currentProduct.name)}
-                className="w-full mt-3 bg-blue-500 text-white py-2 rounded font-medium hover:bg-blue-600 transition-colors text-sm"
-            >
-                📅 Book Now
-            </button>
+            {/* Products Grid - Optimized for chat widget */}
+            <div className="grid grid-cols-2 gap-2 max-h-[400px] overflow-y-auto pr-1">
+                {products.map((product, index) => (
+                    <motion.div
+                        key={product.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3 border border-purple-100 hover:border-purple-300 transition-all hover:shadow-md flex flex-col"
+                    >
+                        {/* Product Image/Icon */}
+                        <div className="text-3xl mb-2 text-center">
+                            {product.image}
+                        </div>
+
+                        {/* Product Info */}
+                        <div className="flex-1">
+                            <h4 className="font-semibold text-gray-800 text-xs mb-1 line-clamp-1">
+                                {product.name}
+                            </h4>
+                            <p className="text-gray-600 text-xs mb-2 line-clamp-2">
+                                {product.description}
+                            </p>
+                        </div>
+
+                        {/* Price and Button */}
+                        <div className="mt-auto">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-purple-600 font-bold text-sm">
+                                    {product.price}
+                                </span>
+                            </div>
+                            <button
+                                onClick={() => onBook?.(product.name)}
+                                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-1.5 px-3 rounded-lg text-xs font-medium hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 active:scale-95 shadow-sm"
+                            >
+                                📅 Book Now
+                            </button>
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
+
+            {/* Footer hint */}
+            <p className="text-xs text-gray-500 mt-3 text-center">
+                Click "Book Now" to schedule your appointment
+            </p>
         </motion.div>
     );
 }

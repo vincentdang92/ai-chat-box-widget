@@ -6,6 +6,7 @@ import { useChat } from 'ai/react';
 import { useAgent, useThreadPersistence } from '@/lib';
 import MessageList from './MessageList';
 import ProductGallery from '../Tools/ProductGallery';
+import BookingTool from '../Tools/BookingTool';
 
 interface ChatWindowProps {
     onClose: () => void;
@@ -82,6 +83,35 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
                         return prev;
                     });
                 }
+                // Check if user wants to book a specific service
+                else if (userMessage.match(/i want to book|book|i'd like to book/i)) {
+                    // Extract service name from message
+                    const serviceNames = config?.websiteKey === 'nail_demo'
+                        ? ['Classic Manicure', 'Gel Nails', 'Nail Art', 'Deluxe Spa Package']
+                        : ['Beach Paradise', 'Mountain Adventure', 'City Explorer', 'Safari Experience'];
+
+                    const foundService = serviceNames.find(name =>
+                        userMessage.toLowerCase().includes(name.toLowerCase())
+                    );
+
+                    if (foundService) {
+                        // Create a manual tool invocation for booking_tool
+                        const bookingInvocation = {
+                            toolCallId: `booking_${Date.now()}`,
+                            toolName: 'booking_tool',
+                            state: 'result',
+                            selectedService: foundService,
+                        };
+
+                        setManualToolInvocations(prev => {
+                            const exists = prev.some(inv => inv.toolCallId === bookingInvocation.toolCallId);
+                            if (!exists) {
+                                return [...prev, bookingInvocation];
+                            }
+                            return prev;
+                        });
+                    }
+                }
             }
         }
     }, [messages, config?.websiteKey]);
@@ -143,24 +173,44 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
 
                 {/* Manual tool invocations rendered here */}
                 {manualToolInvocations.length > 0 && (
-                    <div className="px-4 pb-4">
+                    <div className="px-4 pb-4 space-y-3">
                         {manualToolInvocations.map((tool) => {
                             if (tool.toolName === 'product_gallery' && tool.result) {
                                 return (
-                                    <div key={tool.toolCallId}>
-                                        <ProductGallery
-                                            data={tool.result}
-                                            onBook={(productName: string) => {
-                                                // Trigger booking by sending a message
-                                                append({
-                                                    role: 'user',
-                                                    content: `I want to book ${productName}`,
-                                                });
-                                            }}
-                                        />
-                                    </div>
+                                    <ProductGallery
+                                        key={tool.toolCallId}
+                                        data={tool.result}
+                                        onBook={(productName: string) => {
+                                            // Clear manual invocations and show booking message
+                                            setManualToolInvocations([]);
+                                            append({
+                                                role: 'user',
+                                                content: `I want to book ${productName}`,
+                                            });
+                                        }}
+                                    />
                                 );
                             }
+
+                            if (tool.toolName === 'booking_tool' && tool.selectedService) {
+                                return (
+                                    <BookingTool
+                                        key={tool.toolCallId}
+                                        websiteKey={config?.websiteKey || 'nail_demo'}
+                                        selectedService={tool.selectedService}
+                                        onComplete={(bookingData) => {
+                                            // Clear manual invocations and show confirmation
+                                            setManualToolInvocations([]);
+                                            handleConfirmBooking(
+                                                bookingData.serviceName,
+                                                bookingData.date,
+                                                bookingData.time
+                                            );
+                                        }}
+                                    />
+                                );
+                            }
+
                             return null;
                         })}
                     </div>

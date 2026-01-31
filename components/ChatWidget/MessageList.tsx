@@ -92,7 +92,7 @@ export default function MessageList({ messages, isLoading, onConfirmBooking }: M
                         {message.toolInvocations && message.toolInvocations.length > 0 && (
                             <div className="mt-2 space-y-2">
                                 {message.toolInvocations.map((tool: any) => {
-                                    // Render specialized UI components for specific tools
+                                    // Render BookingTool for product_gallery
                                     if (tool.toolName === 'product_gallery' && tool.result) {
                                         return (
                                             <div key={tool.toolCallId}>
@@ -107,6 +107,7 @@ export default function MessageList({ messages, isLoading, onConfirmBooking }: M
                                                     <div className="mt-3">
                                                         <BookingTool
                                                             websiteKey={config.websiteKey || 'nail_demo'}
+                                                            selectedService={selectedService}
                                                             onComplete={(bookingData) => {
                                                                 setShowBookingTool(false);
                                                                 onConfirmBooking(
@@ -122,22 +123,31 @@ export default function MessageList({ messages, isLoading, onConfirmBooking }: M
                                         );
                                     }
 
-                                    if (tool.toolName === 'booking_tool' && tool.result && tool.result.requiresConfirmation) {
+                                    // Render BookingSummary for booking_tool
+                                    if (tool.toolName === 'booking_tool' && tool.result?.requiresConfirmation) {
                                         return (
-                                            <BookingSummary
-                                                key={tool.toolCallId}
-                                                data={tool.result}
-                                                onConfirm={() => {
-                                                    onConfirmBooking(
-                                                        tool.result.serviceName,
-                                                        tool.result.date,
-                                                        tool.result.time
-                                                    );
-                                                }}
-                                            />
+                                            <div key={tool.toolCallId} className="mt-2">
+                                                <BookingSummary
+                                                    bookingData={{
+                                                        serviceName: tool.result.serviceName,
+                                                        date: tool.result.date,
+                                                        time: tool.result.time,
+                                                        customerName: tool.result.customerName,
+                                                        customerEmail: tool.result.customerEmail,
+                                                        customerMobile: tool.result.customerMobile,
+                                                        price: tool.result.price,
+                                                    }}
+                                                    onConfirm={() => {
+                                                        onConfirmBooking(
+                                                            tool.result.serviceName,
+                                                            tool.result.date,
+                                                            tool.result.time
+                                                        );
+                                                    }}
+                                                />
+                                            </div>
                                         );
                                     }
-
                                     if (tool.toolName === 'create_order' && tool.result) {
                                         return (
                                             <OrderConfirmation

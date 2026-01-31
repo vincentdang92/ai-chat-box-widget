@@ -30,7 +30,6 @@ class MockLanguageModel {
 
         // Contextual response logic
         let mockResponse = '';
-        let shouldCallProductGallery = false;
 
         // Greeting detection
         if (userMessage.match(/^(hi|hello|hey|xin chào|chào)/i)) {
@@ -43,7 +42,6 @@ class MockLanguageModel {
             mockResponse = websiteKey === 'nail_demo'
                 ? "I'd love to show you our services! Here's our gallery. Click 'Book Now' on any service you like. 💅✨"
                 : "Here are our amazing tour packages! Click 'Book Now' on any tour to get started. ✈️🌍";
-            shouldCallProductGallery = true;
         }
         // Booking/order intent
         else if (userMessage.match(/(book|appointment|schedule|reserve|want to|i'd like)/i)) {
@@ -82,19 +80,6 @@ class MockLanguageModel {
                         textDelta: word,
                     });
                     await new Promise(resolve => setTimeout(resolve, 50));
-                }
-
-                // If we should call product gallery, add tool call
-                if (shouldCallProductGallery) {
-                    const toolCallId = `call_${Date.now()}`;
-
-                    // Send tool call
-                    controller.enqueue({
-                        type: 'tool-call',
-                        toolCallId,
-                        toolName: 'product_gallery',
-                        args: { category: websiteKey === 'nail_demo' ? 'Nail Services' : 'Tour Packages' },
-                    });
                 }
 
                 controller.enqueue({
